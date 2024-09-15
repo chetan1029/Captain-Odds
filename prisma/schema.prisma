@@ -1,0 +1,114 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model WnbaGame {
+  id                  Int             @id @default(autoincrement())
+  date                DateTime
+  dateUtc             String
+  homeTeamId          Int
+  awayTeamId          Int
+  homeTeam            WnbaTeam        @relation("HomeTeamRelation", fields: [homeTeamId], references: [id])
+  awayTeam            WnbaTeam        @relation("AwayTeamRelation", fields: [awayTeamId], references: [id])
+  startSpreads        WnbaSpreads?    @relation("StartSpreads", fields: [startSpreadsId], references: [id])
+  kickoffSpreads      WnbaSpreads?    @relation("KickoffSpreads", fields: [kickoffSpreadsId], references: [id])
+  startTotals         WnbaTotals?     @relation("StartTotals", fields: [startTotalsId], references: [id])
+  kickoffTotals       WnbaTotals?     @relation("KickoffTotals", fields: [kickoffTotalsId], references: [id])
+  startMoneylines     WnbaMoneylines? @relation("StartMoneylines", fields: [startMoneylinesId], references: [id])
+  kickoffMoneylines   WnbaMoneylines? @relation("KickoffMoneylines", fields: [kickoffMoneylinesId], references: [id])
+  startSpreadsId      Int?            @unique
+  kickoffSpreadsId    Int?            @unique
+  startTotalsId       Int?            @unique
+  kickoffTotalsId     Int?            @unique
+  startMoneylinesId   Int?            @unique
+  kickoffMoneylinesId Int?            @unique
+  homeScore           Int?
+  awayScore           Int?
+  scores              WnbaScore[]     @relation("GameScores")
+  stats               WnbaStats[]     @relation("GameStats")
+  bet365Id            String?
+  status              String
+  externalId          String          @unique
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+}
+
+model WnbaScore {
+  id        Int      @id @default(autoincrement())
+  gameId    Int
+  game      WnbaGame @relation("GameScores", fields: [gameId], references: [id])
+  quarter   Int // Quarter number
+  homeScore Int
+  awayScore Int
+  createdAt DateTime @default(now())
+}
+
+model WnbaStats {
+  id        Int      @id @default(autoincrement())
+  gameId    Int
+  game      WnbaGame @relation("GameStats", fields: [gameId], references: [id])
+  statType  String // The type of stat (e.g., "2points", "3points", "fouls", etc.)
+  homeValue Float // Value for the home team
+  awayValue Float // Value for the away team
+  createdAt DateTime @default(now())
+}
+
+model WnbaTeam {
+  id         Int        @id @default(autoincrement())
+  name       String
+  city       String?
+  conference String?
+  logo       String?
+  externalId String     @unique
+  homeGames  WnbaGame[] @relation("HomeTeamRelation")
+  awayGames  WnbaGame[] @relation("AwayTeamRelation")
+  slug       String
+}
+
+model WnbaSpreads {
+  id          Int       @id @default(autoincrement())
+  home_od     Float // Home odds
+  away_od     Float // Away odds
+  handicap    Float // Handicap value
+  type        OddsType // Enum for start or kickoff
+  gameStart   WnbaGame? @relation("StartSpreads")
+  gameKickoff WnbaGame? @relation("KickoffSpreads")
+  createdAt   DateTime  @default(now())
+}
+
+model WnbaTotals {
+  id          Int       @id @default(autoincrement())
+  over_od     Float // Over odds
+  under_od    Float // Under odds
+  handicap    Float // Handicap value
+  type        OddsType // Enum for start or kickoff
+  gameStart   WnbaGame? @relation("StartTotals")
+  gameKickoff WnbaGame? @relation("KickoffTotals")
+  createdAt   DateTime  @default(now())
+}
+
+model WnbaMoneylines {
+  id          Int       @id @default(autoincrement())
+  home_od     Float // Home odds
+  away_od     Float // Away odds
+  type        OddsType // Enum for start or kickoff
+  gameStart   WnbaGame? @relation("StartMoneylines")
+  gameKickoff WnbaGame? @relation("KickoffMoneylines")
+  createdAt   DateTime  @default(now())
+}
+
+enum OddsType {
+  START
+  KICKOFF
+}

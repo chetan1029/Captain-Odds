@@ -14,23 +14,33 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+# Create Docker image
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+docker build -t publicbets-nextjs .
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+docker-compose up --build
 
-## Learn More
+# for hot reloading and dev
 
-To learn more about Next.js, take a look at the following resources:
+docker-compose up -d --build
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# for Production
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+docker-compose -f "docker-compose.prod.yml" up -d --build
 
-## Deploy on Vercel
+## Prisma
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# for development
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+npx prisma db push
+
+# Migrate
+
+npx prisma migrate dev
+npx prisma generate
+
+## Production
+
+# install postgres
+
+docker run -p 5432:5432 --name postgres -e POSTGRES_PASSWORD=BETpUBlic2024 -e POSTGRES_USER=publicbets -e POSTGRES_DB=publicbets -d postgres

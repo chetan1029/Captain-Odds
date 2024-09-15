@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  frontend:
+    container_name: frontend
+    build:
+      context: .
+      target: dev
+    restart: always
+    command: npm run prisma-run-dev
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://publicbets:BETpUBlic2024@138.197.8.70:5432/publicbets
+      NODE_ENV: development
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    # code for hot reloading in development
