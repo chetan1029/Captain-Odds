@@ -7,21 +7,29 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "prisma-run-dev": "npx prisma db push && prisma generate && next dev",
-    "prisma-run-prod": "prisma generate && prisma migrate deploy"
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up",
+    "prisma:dev": "npx prisma migrate dev --name init",
+    "prisma:deploy": "npx prisma migrate deploy",
+    "prod": "npx prisma migrate deploy && node server.js"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^5.19.1",
     "@prisma/client": "^5.19.0",
+    "ci": "^2.3.0",
     "date-fns": "^3.6.0",
     "date-fns-tz": "^3.1.3",
     "next": "14.2.7",
+    "pg": "^8.12.0",
     "prisma": "^5.19.0",
     "react": "^18",
     "react-dom": "^18",
+    "sharp": "^0.33.5",
     "swr": "^2.2.5"
   },
   "devDependencies": {
     "@types/node": "^20.16.2",
+    "@types/pg": "^8.11.10",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",

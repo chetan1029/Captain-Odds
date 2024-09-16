@@ -1,5 +1,4 @@
 // Import necessary modules
-import prisma from '@/db'
 import { format } from 'date-fns';
 import insertEventGames from './common/eventGames';
 import insertEventOdds from './common/eventOdds';

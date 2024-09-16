@@ -1,5 +1,5 @@
 import { stringToSlug } from '@/app/utils/toSlug';
-import prisma from '@/db';
+import {prisma} from '@/db';
 
 async function insertEventGames(home: any, away: any, time: any, id: string, time_status: string, bet365_id: string) {
     try {

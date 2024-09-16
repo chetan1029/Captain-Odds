@@ -1,5 +1,5 @@
 import type { WnbaGame } from '@prisma/client'
-import prisma from '@/db'
+import {prisma} from '@/db'
 import { unstable_cache } from "next/cache";
 
 export const getGamesByDateUtc = unstable_cache(

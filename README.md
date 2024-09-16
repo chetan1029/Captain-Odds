@@ -44,3 +44,15 @@ npx prisma generate
 # install postgres
 
 docker run -p 5432:5432 --name postgres -e POSTGRES_PASSWORD=BETpUBlic2024 -e POSTGRES_USER=publicbets -e POSTGRES_DB=publicbets -d postgres
+
+## Prepare production server
+
+1. apt install docker-compose
+2. sudo apt update && sudo apt install git
+3. git --version
+4. ssh-keygen -t ed25519 -C "chetanbadgujar92@gmail.com" (it will save inside /root/.ssh usually)
+5. cat id_ed25519.pub (to copy public key)
+6. Add this public key into github setting -> new SSH key
+7. Test ssh with - ssh -T git@github.com (it will display Hi chetan1029! You've successfully....)
+8. go to cd /root/publicbets/
+9. git clone git@github.com:chetan1029/publicbets-final.git
