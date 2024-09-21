@@ -56,3 +56,5 @@ docker run -p 5432:5432 --name postgres -e POSTGRES_PASSWORD=BETpUBlic2024 -e PO
 7. Test ssh with - ssh -T git@github.com (it will display Hi chetan1029! You've successfully....)
 8. go to cd /root/publicbets/
 9. git clone git@github.com:chetan1029/publicbets-final.git
+10. Run - docker compose build
+11. Run - docker compose up
