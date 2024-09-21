@@ -1,5 +1,7 @@
 import { formatTime } from "@/app/utils/formatDate";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { start } from "repl";
 
 interface Score {
   id: number;
@@ -28,15 +30,40 @@ interface Game {
   status: string;
   homeScore: number;
   awayScore: number;
+  startMoneylines: any;
+  startSpreads: any;
+  startTotals: any;
+  kickoffMoneylines: any;
+  kickoffSpreads: any;
+  kickoffTotals: any;
   // other properties
 }
 
 interface GameScoreProps {
   game: Game;
-  type: string;
+  oddsType: "MoneyLine" | "Spread" | "Total";
 }
 
-const GameScore: React.FC<GameScoreProps> = ({ game, type }) => {
+const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
+  const [startOdds, setStartOdds] = useState("");
+  const [kickOffOdds, setKickOffOdds] = useState("");
+
+  // Setup Odds
+  useEffect(() => {
+    // Set odds based on the selected oddsType
+    if (oddsType === "MoneyLine") {
+      setStartOdds(game.startMoneylines);
+      setKickOffOdds(game.kickoffMoneylines);
+    } else if (oddsType === "Spread") {
+      setStartOdds(game.startSpreads);
+      setKickOffOdds(game.kickoffSpreads);
+    } else if (oddsType === "Total") {
+      setStartOdds(game.startTotals);
+      setKickOffOdds(game.kickoffTotals);
+    }
+  }, [oddsType, game]);
+
+  // for the score
   const getShortName = (name: string) => {
     return name.split(/[\s-]/)[0];
   };
@@ -56,7 +83,7 @@ const GameScore: React.FC<GameScoreProps> = ({ game, type }) => {
 
   const renderPeriod = (quartersToShow: any) => {
     return quartersToShow.map((quarter: any) => (
-      <th key={quarter} className="px-3 pb-2">
+      <th key={quarter} className="px-4 pb-2 text-center">
         {quarter >= 3 ? quarter - 1 : quarter}
       </th>
     ));
@@ -119,6 +146,90 @@ const GameScore: React.FC<GameScoreProps> = ({ game, type }) => {
       );
     }
   };
+
+  // For the Start, Kickoff and live odds
+  const renderOddsType = () => {
+    return (
+      <>
+        <th className="px-3 pb-2 whitespace-nowrap">OPEN</th>
+        <th className="px-3 pb-2 whitespace-nowrap">KICKOFF</th>
+      </>
+    );
+  };
+
+  const getOddsValue = (
+    odds: any,
+    type: "MoneyLine" | "Spread" | "Total",
+    isHomeTeam: boolean
+  ) => {
+    if (!odds) return undefined;
+
+    if (type === "MoneyLine") {
+      return { main: isHomeTeam ? odds.home_od : odds.away_od };
+    }
+    if (type === "Spread") {
+      return {
+        main: odds.handicap,
+        sub: isHomeTeam ? odds.home_od : odds.away_od,
+      };
+    }
+    if (type === "Total") {
+      return {
+        main: isHomeTeam ? `o${odds.handicap}` : `u${odds.handicap}`,
+        sub: isHomeTeam ? odds.over_od : odds.under_od,
+      };
+    }
+  };
+
+  const OddsButton = ({
+    mainText,
+    subText,
+  }: {
+    mainText: string | number;
+    subText?: string | number;
+  }) => (
+    <button
+      className="w-32 h-12 flex flex-col items-center justify-center rounded-md border border-slate-300 py-1 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 hover:text-white hover:bg-slate-800 hover:border-slate-800 focus:text-white focus:bg-slate-800 focus:border-slate-800 active:border-slate-800 active:text-white active:bg-slate-800 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+      type="button"
+    >
+      <span className="text-md">{mainText}</span>
+      {subText && <span className="text-xs">{subText}</span>}
+    </button>
+  );
+
+  const renderOdds = (
+    team: "homeTeam" | "awayTeam",
+    startOdds: any,
+    kickOffOdds: any,
+    type: "MoneyLine" | "Spread" | "Total"
+  ) => {
+    const isHomeTeam = team === "homeTeam";
+
+    const startOddsValue = getOddsValue(startOdds, type, isHomeTeam);
+    const kickOffOddsValue = getOddsValue(kickOffOdds, type, isHomeTeam);
+
+    return (
+      <>
+        <td key={startOdds?.id} className="px-3 pb-2">
+          {startOddsValue && (
+            <OddsButton
+              mainText={startOddsValue.main}
+              subText={startOddsValue.sub}
+            />
+          )}
+        </td>
+        <td key={kickOffOdds?.id} className="px-3 pb-2">
+          {kickOffOddsValue && (
+            <OddsButton
+              mainText={kickOffOddsValue.main}
+              subText={kickOffOddsValue.sub}
+            />
+          )}
+        </td>
+      </>
+    );
+  };
+
   return (
     <table className="table-fixed mr-5">
       <thead>
@@ -128,27 +239,29 @@ const GameScore: React.FC<GameScoreProps> = ({ game, type }) => {
               {renderStatus(game)}
             </div>
           </th>
+          {renderOddsType()}
           {renderPeriod(quartersToShow())}
-          {game.status === "Pending" ? null : <th className="px-3 pb-2">T</th>}
+          {game.status === "Pending" ? null : (
+            <th className="px-4 pb-2 text-center">T</th>
+          )}
         </tr>
       </thead>
       <tbody>
         <tr className="text-sm">
           <td className="pr-10">
-            <div className="flex min-w-0 gap-x-4">
-              {type == "gameList" ? (
-                <Image
-                  className="h-10 w-10 flex-none rounded-full bg-gray-50"
-                  src={
-                    "https://assets.b365api.com/images/team/m/" +
-                      game.homeTeam.logo +
-                      ".png" || "/placeholder-logo.png"
-                  }
-                  alt={game.homeTeam.name}
-                  width={30}
-                  height={30}
-                />
-              ) : null}
+            <div className="flex w-32 gap-x-4">
+              <Image
+                className="h-10 w-10 flex-none rounded-full bg-gray-50"
+                src={
+                  "https://assets.b365api.com/images/team/m/" +
+                    game.homeTeam.logo +
+                    ".png" || "/placeholder-logo.png"
+                }
+                alt={game.homeTeam.name}
+                width={30}
+                height={30}
+              />
+
               <div className="flex-auto flex items-center">
                 <p className="font-semibold leading-6 text-gray-900 text-left">
                   {getShortName(game.homeTeam.name)}
@@ -156,25 +269,25 @@ const GameScore: React.FC<GameScoreProps> = ({ game, type }) => {
               </div>
             </div>
           </td>
+          {renderOdds("homeTeam", startOdds, kickOffOdds, oddsType)}
           {renderPeriodScores("homeTeam", quartersToShow())}
           {renderTotal("homeTeam")}
         </tr>
         <tr className="text-sm">
           <td className="pr-10">
-            <div className="flex min-w-0 gap-x-4">
-              {type == "gameList" ? (
-                <Image
-                  className="h-10 w-10 flex-none rounded-full bg-gray-50 "
-                  src={
-                    "https://assets.b365api.com/images/team/m/" +
-                      game.awayTeam.logo +
-                      ".png" || "/placeholder-logo.png"
-                  }
-                  alt={game.awayTeam.name}
-                  width={30}
-                  height={30}
-                />
-              ) : null}
+            <div className="flex w-32 gap-x-4">
+              <Image
+                className="h-10 w-10 flex-none rounded-full bg-gray-50 "
+                src={
+                  "https://assets.b365api.com/images/team/m/" +
+                    game.awayTeam.logo +
+                    ".png" || "/placeholder-logo.png"
+                }
+                alt={game.awayTeam.name}
+                width={30}
+                height={30}
+              />
+
               <div className="flex-auto flex items-center">
                 <p className="font-semibold leading-6 text-gray-900 text-left">
                   {getShortName(game.awayTeam.name)}
@@ -182,6 +295,7 @@ const GameScore: React.FC<GameScoreProps> = ({ game, type }) => {
               </div>
             </div>
           </td>
+          {renderOdds("awayTeam", startOdds, kickOffOdds, oddsType)}
           {renderPeriodScores("awayTeam", quartersToShow())}
           {renderTotal("awayTeam")}
         </tr>

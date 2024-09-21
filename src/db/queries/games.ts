@@ -39,6 +39,12 @@ export const getGamesByDateUtc = unstable_cache(
                 awayTeam: true,
                 scores: true,
                 stats: true,
+                kickoffMoneylines: true,
+                kickoffSpreads: true,
+                kickoffTotals: true,
+                startMoneylines: true,
+                startSpreads: true,
+                startTotals: true,
             },
         })
 
