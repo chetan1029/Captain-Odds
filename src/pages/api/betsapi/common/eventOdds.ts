@@ -24,9 +24,27 @@ async function insertEventOdds(eventId: string, oddsData: any) {
         const kickoffSpreads = kickoffExists && kickoff["18_2"] ? kickoff["18_2"] : null;
         const kickoffTotals = kickoffExists && kickoff["18_3"] ? kickoff["18_3"] : null;
         const kickoffMoneylines = kickoffExists && kickoff["18_1"] ? kickoff["18_1"] : null;
+
+        // Fetch existing game to see if odds are already present
+        const existingGame = await prisma.wnbaGame.findUnique({
+            where: { externalId: eventId },
+            include: {
+            startSpreads: true,
+            startTotals: true,
+            startMoneylines: true,
+            kickoffSpreads: true,
+            kickoffTotals: true,
+            kickoffMoneylines: true,
+            },
+        });
+    
+        if (!existingGame) {
+            console.warn('Game with eventId not found.');
+            return;
+        }
     
         // Insert start odds data into respective tables
-        const startSpreadsEntry = startSpreads ? await prisma.wnbaSpreads.create({
+        const startSpreadsEntry = startSpreads && !existingGame.startSpreads ? await prisma.wnbaSpreads.create({
             data: {
             home_od: parseFloat(startSpreads.home_od),
             away_od: parseFloat(startSpreads.away_od),
@@ -35,7 +53,7 @@ async function insertEventOdds(eventId: string, oddsData: any) {
             }
         }) : null;
     
-        const kickoffSpreadsEntry = kickoffSpreads ? await prisma.wnbaSpreads.create({
+        const kickoffSpreadsEntry = kickoffSpreads && !existingGame.kickoffSpreads ? await prisma.wnbaSpreads.create({
             data: {
             home_od: parseFloat(kickoffSpreads.home_od),
             away_od: parseFloat(kickoffSpreads.away_od),
@@ -44,7 +62,7 @@ async function insertEventOdds(eventId: string, oddsData: any) {
             }
         }) : null;
     
-        const startTotalsEntry = startTotals ? await prisma.wnbaTotals.create({
+        const startTotalsEntry = startTotals && !existingGame.startTotals ? await prisma.wnbaTotals.create({
             data: {
             over_od: parseFloat(startTotals.over_od),
             under_od: parseFloat(startTotals.under_od),
@@ -53,7 +71,7 @@ async function insertEventOdds(eventId: string, oddsData: any) {
             }
         }) : null;
     
-        const kickoffTotalsEntry = kickoffTotals ? await prisma.wnbaTotals.create({
+        const kickoffTotalsEntry = kickoffTotals && !existingGame.kickoffTotals ? await prisma.wnbaTotals.create({
             data: {
             over_od: parseFloat(kickoffTotals.over_od),
             under_od: parseFloat(kickoffTotals.under_od),
@@ -62,7 +80,7 @@ async function insertEventOdds(eventId: string, oddsData: any) {
             }
         }) : null;
     
-        const startMoneylinesEntry = startMoneylines ? await prisma.wnbaMoneylines.create({
+        const startMoneylinesEntry = startMoneylines && !existingGame.startMoneylines ? await prisma.wnbaMoneylines.create({
             data: {
             home_od: parseFloat(startMoneylines.home_od),
             away_od: parseFloat(startMoneylines.away_od),
@@ -70,7 +88,7 @@ async function insertEventOdds(eventId: string, oddsData: any) {
             }
         }) : null;
     
-        const kickoffMoneylinesEntry = kickoffMoneylines ? await prisma.wnbaMoneylines.create({
+        const kickoffMoneylinesEntry = kickoffMoneylines && !existingGame.kickoffMoneylines ? await prisma.wnbaMoneylines.create({
             data: {
             home_od: parseFloat(kickoffMoneylines.home_od),
             away_od: parseFloat(kickoffMoneylines.away_od),

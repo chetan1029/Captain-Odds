@@ -58,3 +58,4 @@ docker run -p 5432:5432 --name postgres -e POSTGRES_PASSWORD=BETpUBlic2024 -e PO
 9. git clone git@github.com:chetan1029/publicbets-final.git
 10. Run - docker compose build
 11. Run - docker compose up
+12. Sometime postgres gonna give error of "role not found" or credentials error - just delete volume and build/up again

@@ -164,12 +164,22 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
   ) => {
     if (!odds) return undefined;
 
+    // Helper function to format odds with a "+" for positive values
+    const formatOdds = (value: number) => {
+      return value > 0 ? `+${value}` : `${value}`;
+    };
+
     if (type === "MoneyLine") {
       return { main: isHomeTeam ? odds.home_od : odds.away_od };
     }
     if (type === "Spread") {
+      const home_handicap = odds.handicap;
+      const away_handicap =
+        home_handicap > 0 ? -Math.abs(home_handicap) : Math.abs(home_handicap);
       return {
-        main: odds.handicap,
+        main: isHomeTeam
+          ? formatOdds(home_handicap)
+          : formatOdds(away_handicap),
         sub: isHomeTeam ? odds.home_od : odds.away_od,
       };
     }
