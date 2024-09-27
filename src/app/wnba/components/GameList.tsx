@@ -11,9 +11,14 @@ interface GameListProps {
 }
 
 const GameList: React.FC<GameListProps> = ({ games, oddsType }) => {
+  // Check if games is an array
+  if (!Array.isArray(games)) {
+    console.error("Expected 'games' to be an array, but received:", games);
+    return <div>No games available</div>; // or some other fallback UI
+  }
   return (
     <ul role="list" className="grid divide-y divide-gray-100">
-      {games.map((game: any) => (
+      {games?.map((game: any) => (
         <li
           key={game.id}
           className="md:flex md:divide-x md:divide-gray-300 py-3 "

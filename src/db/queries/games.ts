@@ -56,3 +56,37 @@ export const getGamesByDateUtc = unstable_cache(
       tags: ['games'], // Optionally, tag the cache if you want to invalidate it manually later
     }
 );
+
+export const getGameBySlug = unstable_cache(
+    async (gameSlug: number): Promise<WnbaGame> => {
+        // Fetch Games from the database
+        const game = await prisma.wnbaGame.findFirst({
+            where: {
+                id: gameSlug,
+            },
+            include: {
+                homeTeam: true,
+                awayTeam: true,
+                scores: true,
+                stats: true,
+                kickoffMoneylines: true,
+                kickoffSpreads: true,
+                kickoffTotals: true,
+                startMoneylines: true,
+                startSpreads: true,
+                startTotals: true,
+            },
+        })
+
+        if (!game) {
+            throw new Error(`Game with slug/Id ${gameSlug} not found`);
+        }
+
+        return game;
+    },
+    ['gamebySlug'],
+    {
+      revalidate: 60,
+      tags: ['gamebySlug'], // Optionally, tag the cache if you want to invalidate it manually later
+    }
+);

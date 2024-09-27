@@ -1,7 +1,7 @@
+import { getShortName } from "@/app/utils/common";
 import { formatTime } from "@/app/utils/formatDate";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { start } from "repl";
 
 interface Score {
   id: number;
@@ -63,11 +63,6 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
     }
   }, [oddsType, game]);
 
-  // for the score
-  const getShortName = (name: string) => {
-    return name.split(/[\s-]/)[0];
-  };
-
   const quartersToShow = () => {
     const uniqueQuarters = Array.from(
       new Set(game.scores.map((score) => score.quarter))
@@ -83,7 +78,7 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
 
   const renderPeriod = (quartersToShow: any) => {
     return quartersToShow.map((quarter: any) => (
-      <th key={quarter} className="px-4 pb-2 text-center">
+      <th key={quarter} className="w-1/12 px-4 pb-2 text-center">
         {quarter >= 3 ? quarter - 1 : quarter}
       </th>
     ));
@@ -104,14 +99,14 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
 
       if (!score) {
         return (
-          <td key={quarter} className="px-3">
+          <td key={quarter} className="px-3 text-center">
             -
           </td>
         ); // No score for this quarter
       }
 
       return (
-        <td key={score.id} className="px-3">
+        <td key={score.id} className="px-3 text-center">
           {team === "homeTeam" ? score.homeScore : score.awayScore}
         </td>
       );
@@ -123,7 +118,7 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
 
     return (
       <td
-        className={`px-3 font-bold ${game.status === "Final" && teamScore === game.homeScore ? "text-green-500" : ""}`}
+        className={`text-center px-3 font-bold ${game.status === "Final" && teamScore === game.homeScore ? "text-green-500" : ""}`}
       >
         {teamScore}
       </td>
@@ -151,8 +146,8 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
   const renderOddsType = () => {
     return (
       <>
-        <th className="px-3 pb-2 whitespace-nowrap">OPEN</th>
-        <th className="px-3 pb-2 whitespace-nowrap">KICKOFF</th>
+        <th className="w-2/12 px-3 pb-2 whitespace-nowrap">OPEN</th>
+        <th className="w-2/12 px-3 pb-2 whitespace-nowrap">KICKOFF</th>
       </>
     );
   };
@@ -241,10 +236,10 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
   };
 
   return (
-    <table className="table-fixed mr-5">
+    <table className="table-fixed w-full mr-5">
       <thead>
         <tr className="text-sm">
-          <th className="w-full pb-2">
+          <th className="w-1/5 pb-2">
             <div className="flex items-center gap-x-1.5">
               {renderStatus(game)}
             </div>
@@ -252,7 +247,7 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
           {renderOddsType()}
           {renderPeriod(quartersToShow())}
           {game.status === "Pending" ? null : (
-            <th className="px-4 pb-2 text-center">T</th>
+            <th className="w-1/12 px-4 pb-2 text-center">T</th>
           )}
         </tr>
       </thead>
