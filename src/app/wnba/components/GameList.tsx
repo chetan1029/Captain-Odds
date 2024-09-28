@@ -17,11 +17,11 @@ const GameList: React.FC<GameListProps> = ({ games, oddsType }) => {
     return <div>No games available</div>; // or some other fallback UI
   }
   return (
-    <ul role="list" className="grid divide-y divide-gray-100">
+    <ul role="list" className="grid divide-y divide-gray-100 overflow-x-auto">
       {games?.map((game: any) => (
         <li
           key={game.id}
-          className="md:flex md:divide-x md:divide-gray-300 py-3 "
+          className="min-w-[640px] md:flex md:divide-x md:divide-gray-300 py-3 "
         >
           <Link key={game.id} href={`/wnba/boxscore/${game.id}`}>
             <GameScore game={game} oddsType={oddsType} />

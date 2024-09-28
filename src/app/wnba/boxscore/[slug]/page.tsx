@@ -85,10 +85,13 @@ export default function BoxScore({ params }: { params: { slug: string } }) {
               </div>
             </div>
           </div>
-          <ul role="list" className="grid divide-y divide-gray-100">
+          <ul
+            role="list"
+            className="grid divide-y divide-gray-100 overflow-x-auto"
+          >
             <li
               key={gameId}
-              className="md:flex md:divide-x md:divide-gray-300 py-3 "
+              className="min-w-[640px] md:flex md:divide-x md:divide-gray-300 py-3 "
             >
               <div className="flex justify-center w-full">
                 {game && <GameScore game={game} oddsType={oddsType} />}

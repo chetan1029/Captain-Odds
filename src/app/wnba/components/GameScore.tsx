@@ -113,13 +113,11 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
     });
   };
 
-  const renderTotal = (team: "homeTeam" | "awayTeam") => {
+  const renderTotal = (team: "homeTeam" | "awayTeam", teamClass: string) => {
     const teamScore = team === "homeTeam" ? game.homeScore : game.awayScore;
 
     return (
-      <td
-        className={`text-center px-3 font-bold ${game.status === "Final" && teamScore === game.homeScore ? "text-green-500" : ""}`}
-      >
+      <td className={`text-center text-lg px-3 font-medium ${teamClass}`}>
         {teamScore}
       </td>
     );
@@ -146,8 +144,8 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
   const renderOddsType = () => {
     return (
       <>
-        <th className="w-2/12 px-3 pb-2 whitespace-nowrap">OPEN</th>
-        <th className="w-2/12 px-3 pb-2 whitespace-nowrap">KICKOFF</th>
+        <th className="w-auto px-3 pb-2 whitespace-nowrap">OPEN</th>
+        <th className="w-auto px-3 pb-2 whitespace-nowrap">KICKOFF</th>
       </>
     );
   };
@@ -155,7 +153,9 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
   const getOddsValue = (
     odds: any,
     type: "MoneyLine" | "Spread" | "Total",
-    isHomeTeam: boolean
+    isHomeTeam: boolean,
+    homeScore: number,
+    awayScore: number
   ) => {
     if (!odds) return undefined;
 
@@ -165,23 +165,33 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
     };
 
     if (type === "MoneyLine") {
-      return { main: isHomeTeam ? odds.home_od : odds.away_od };
+      const isHomeWinning = homeScore > awayScore ? true : false;
+      return {
+        main: isHomeTeam ? odds.home_od : odds.away_od,
+        isWinning: isHomeTeam ? isHomeWinning : !isHomeWinning,
+      };
     }
     if (type === "Spread") {
       const home_handicap = odds.handicap;
       const away_handicap =
         home_handicap > 0 ? -Math.abs(home_handicap) : Math.abs(home_handicap);
+      const homeSpreadWinning =
+        odds.handicap + homeScore > awayScore ? true : false;
       return {
         main: isHomeTeam
           ? formatOdds(home_handicap)
           : formatOdds(away_handicap),
         sub: isHomeTeam ? odds.home_od : odds.away_od,
+        isWinning: isHomeTeam ? homeSpreadWinning : !homeSpreadWinning,
       };
     }
     if (type === "Total") {
+      const isOverWinning =
+        odds.handicap < homeScore + awayScore ? true : false;
       return {
         main: isHomeTeam ? `o${odds.handicap}` : `u${odds.handicap}`,
         sub: isHomeTeam ? odds.over_od : odds.under_od,
+        isWinning: isHomeTeam ? isOverWinning : !isOverWinning,
       };
     }
   };
@@ -189,12 +199,18 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
   const OddsButton = ({
     mainText,
     subText,
+    isWinning,
   }: {
     mainText: string | number;
     subText?: string | number;
+    isWinning?: boolean;
   }) => (
     <button
-      className="w-32 h-12 flex flex-col items-center justify-center rounded-md border border-slate-300 py-1 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 hover:text-white hover:bg-slate-800 hover:border-slate-800 focus:text-white focus:bg-slate-800 focus:border-slate-800 active:border-slate-800 active:text-white active:bg-slate-800 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+      className={`w-24 h-12 md:w-32 flex flex-col items-center justify-center rounded-md border py-1 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 ${
+        isWinning && game.status == "3"
+          ? "border-green-500"
+          : "border-slate-300"
+      }`}
       type="button"
     >
       <span className="text-md">{mainText}</span>
@@ -210,8 +226,20 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
   ) => {
     const isHomeTeam = team === "homeTeam";
 
-    const startOddsValue = getOddsValue(startOdds, type, isHomeTeam);
-    const kickOffOddsValue = getOddsValue(kickOffOdds, type, isHomeTeam);
+    const startOddsValue = getOddsValue(
+      startOdds,
+      type,
+      isHomeTeam,
+      homeScore,
+      awayScore
+    );
+    const kickOffOddsValue = getOddsValue(
+      kickOffOdds,
+      type,
+      isHomeTeam,
+      homeScore,
+      awayScore
+    );
 
     return (
       <>
@@ -220,6 +248,7 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
             <OddsButton
               mainText={startOddsValue.main}
               subText={startOddsValue.sub}
+              isWinning={startOddsValue.isWinning}
             />
           )}
         </td>
@@ -228,6 +257,7 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
             <OddsButton
               mainText={kickOffOddsValue.main}
               subText={kickOffOddsValue.sub}
+              isWinning={kickOffOddsValue.isWinning}
             />
           )}
         </td>
@@ -235,25 +265,34 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
     );
   };
 
+  // Determine which team has the higher score
+  const homeScore = game.homeScore;
+  const awayScore = game.awayScore;
+
+  const homeScoreClass =
+    homeScore >= awayScore ? "text-black" : "text-gray-500";
+  const awayScoreClass =
+    awayScore >= homeScore ? "text-black" : "text-gray-500";
+
   return (
-    <table className="table-fixed w-full mr-5">
+    <table className="table-fixed md:w-full mr-5">
       <thead>
         <tr className="text-sm">
-          <th className="w-1/5 pb-2">
+          <th className="w-auto pb-2 sticky left-0 bg-white">
             <div className="flex items-center gap-x-1.5">
               {renderStatus(game)}
             </div>
           </th>
           {renderOddsType()}
           {renderPeriod(quartersToShow())}
-          {game.status === "Pending" ? null : (
+          {game.status === "0" ? null : (
             <th className="w-1/12 px-4 pb-2 text-center">T</th>
           )}
         </tr>
       </thead>
       <tbody>
         <tr className="text-sm">
-          <td className="pr-10">
+          <td className="sticky left-0 bg-white">
             <div className="flex w-32 gap-x-4">
               <Image
                 className="h-10 w-10 flex-none rounded-full bg-gray-50"
@@ -268,7 +307,9 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
               />
 
               <div className="flex-auto flex items-center">
-                <p className="font-semibold leading-6 text-gray-900 text-left">
+                <p
+                  className={`font-semibold leading-6 text-left ${homeScoreClass}`}
+                >
                   {getShortName(game.homeTeam.name)}
                 </p>
               </div>
@@ -276,10 +317,10 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
           </td>
           {renderOdds("homeTeam", startOdds, kickOffOdds, oddsType)}
           {renderPeriodScores("homeTeam", quartersToShow())}
-          {renderTotal("homeTeam")}
+          {game.status == "0" ? "" : renderTotal("homeTeam", homeScoreClass)}
         </tr>
         <tr className="text-sm">
-          <td className="pr-10">
+          <td className="sticky left-0 bg-white">
             <div className="flex w-32 gap-x-4">
               <Image
                 className="h-10 w-10 flex-none rounded-full bg-gray-50 "
@@ -294,7 +335,9 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
               />
 
               <div className="flex-auto flex items-center">
-                <p className="font-semibold leading-6 text-gray-900 text-left">
+                <p
+                  className={`font-semibold leading-6 text-left ${awayScoreClass}`}
+                >
                   {getShortName(game.awayTeam.name)}
                 </p>
               </div>
@@ -302,7 +345,7 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
           </td>
           {renderOdds("awayTeam", startOdds, kickOffOdds, oddsType)}
           {renderPeriodScores("awayTeam", quartersToShow())}
-          {renderTotal("awayTeam")}
+          {game.status == "0" ? "" : renderTotal("awayTeam", awayScoreClass)}
         </tr>
       </tbody>
     </table>

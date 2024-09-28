@@ -41,8 +41,10 @@ export default function Matchupblock({ todayDate }: MatchupblockProps) {
 
   return (
     <div className="mx-auto max-w-7xl py-6 px-4 md:px-6 lg:px-6 bg-white rounded-lg border border-gray-100 text-gray-900">
-      <div className="flex items-center justify-between pb-3 border-b">
-        <h2 className="font-semibold">{formatDateOnly(todayDate)}</h2>
+      <div className="flex flex-col md:flex-row items-start items-center justify-between pb-3 border-b">
+        <h2 className="font-semibold mb-2 md:mb-0">
+          {formatDateOnly(todayDate)}
+        </h2>
 
         <div className="w-full max-w-[300px] min-w-[200px]">
           <div className="relative">
