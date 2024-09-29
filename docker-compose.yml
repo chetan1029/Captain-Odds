@@ -3,7 +3,7 @@ version: "3.9"
 services:
   next:
     container_name: next
-    image: cedo/next
+    image: publicbets-next:latest
     build: .
     depends_on:
       - db
