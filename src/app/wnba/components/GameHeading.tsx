@@ -1,6 +1,7 @@
 import { getShortName, renderStatus } from "@/app/utils/common";
 import { formatDateTimeMonthOnly } from "@/app/utils/formatDate";
 import Link from "next/link";
+import Image from "next/image";
 
 interface GameHeadingProps {
   game: any;
@@ -36,7 +37,7 @@ const GameHeading: React.FC<GameHeadingProps> = ({ game }) => {
                 {getShortName(game.homeTeam.name)}
               </p>
             </div>
-            <img
+            <Image
               className="h-8 w-8 rounded-full bg-gray-50"
               src={
                 "https://assets.b365api.com/images/team/m/" +
@@ -63,7 +64,7 @@ const GameHeading: React.FC<GameHeadingProps> = ({ game }) => {
             <div className={`flex text-2xl ${awayScoreClass}`}>
               {game.awayScore}
             </div>
-            <img
+            <Image
               className="h-8 w-8 rounded-full bg-gray-50"
               src={
                 "https://assets.b365api.com/images/team/m/" +
