@@ -45,6 +45,9 @@ export const getGamesByDateUtc = unstable_cache(
                 startMoneylines: true,
                 startSpreads: true,
                 startTotals: true,
+                liveMoneylines: true,
+                liveSpreads: true,
+                liveTotals: true,
             },
         })
 
@@ -75,6 +78,9 @@ export const getGameBySlug = unstable_cache(
                 startMoneylines: true,
                 startSpreads: true,
                 startTotals: true,
+                liveMoneylines: true,
+                liveSpreads: true,
+                liveTotals: true,
             },
         })
 

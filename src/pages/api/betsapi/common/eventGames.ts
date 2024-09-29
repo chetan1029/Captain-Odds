@@ -11,7 +11,17 @@ async function insertEventGames(home: any, away: any, time: any, id: string, tim
       });
 
       // If the game doesn't exist, create a new entry
-      if (!existingGame) {
+      if (existingGame) {
+        // If the game exists, update its status
+        await prisma.wnbaGame.update({
+          where: {
+            externalId: id,
+          },
+          data: {
+            status: time_status, // Update the status
+          },
+        });
+      } else {
         await prisma.wnbaGame.create({
           data: {
             homeTeam: {

@@ -36,7 +36,9 @@ interface Game {
   kickoffMoneylines: any;
   kickoffSpreads: any;
   kickoffTotals: any;
-  // other properties
+  liveMoneylines: any;
+  liveSpreads: any;
+  liveTotals: any;
 }
 
 interface GameScoreProps {
@@ -47,6 +49,7 @@ interface GameScoreProps {
 const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
   const [startOdds, setStartOdds] = useState("");
   const [kickOffOdds, setKickOffOdds] = useState("");
+  const [liveOdds, setLiveOdds] = useState("");
 
   // Setup Odds
   useEffect(() => {
@@ -54,12 +57,15 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
     if (oddsType === "MoneyLine") {
       setStartOdds(game.startMoneylines);
       setKickOffOdds(game.kickoffMoneylines);
+      setLiveOdds(game.liveMoneylines);
     } else if (oddsType === "Spread") {
       setStartOdds(game.startSpreads);
       setKickOffOdds(game.kickoffSpreads);
+      setLiveOdds(game.liveSpreads);
     } else if (oddsType === "Total") {
       setStartOdds(game.startTotals);
       setKickOffOdds(game.kickoffTotals);
+      setLiveOdds(game.liveTotals);
     }
   }, [oddsType, game]);
 
@@ -128,13 +134,13 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
       return <p className="font-medium">{formatTime(game.dateUtc)}</p>;
     } else if (game.status === "3") {
       return <p className="font-medium">{"Final"}</p>;
-    } else {
+    } else if (game.status === "1") {
       return (
         <>
           <div className="flex-none rounded-full bg-emerald-500/20 p-1">
             <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
           </div>{" "}
-          <p className="leading-5">{game.status}</p>
+          <p className="leading-5">Live</p>
         </>
       );
     }
@@ -146,6 +152,7 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
       <>
         <th className="w-auto px-3 pb-2 whitespace-nowrap">OPEN</th>
         <th className="w-auto px-3 pb-2 whitespace-nowrap">KICKOFF</th>
+        <th className="w-auto px-3 pb-2 whitespace-nowrap">LIVE</th>
       </>
     );
   };
@@ -222,6 +229,7 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
     team: "homeTeam" | "awayTeam",
     startOdds: any,
     kickOffOdds: any,
+    liveOdds: any,
     type: "MoneyLine" | "Spread" | "Total"
   ) => {
     const isHomeTeam = team === "homeTeam";
@@ -235,6 +243,13 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
     );
     const kickOffOddsValue = getOddsValue(
       kickOffOdds,
+      type,
+      isHomeTeam,
+      homeScore,
+      awayScore
+    );
+    const liveOddsValue = getOddsValue(
+      liveOdds,
       type,
       isHomeTeam,
       homeScore,
@@ -258,6 +273,15 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
               mainText={kickOffOddsValue.main}
               subText={kickOffOddsValue.sub}
               isWinning={kickOffOddsValue.isWinning}
+            />
+          )}
+        </td>
+        <td key={liveOdds?.id} className="px-3 pb-2">
+          {liveOddsValue && (
+            <OddsButton
+              mainText={liveOddsValue.main}
+              subText={liveOddsValue.sub}
+              isWinning={liveOddsValue.isWinning}
             />
           )}
         </td>
@@ -315,7 +339,7 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
               </div>
             </div>
           </td>
-          {renderOdds("homeTeam", startOdds, kickOffOdds, oddsType)}
+          {renderOdds("homeTeam", startOdds, kickOffOdds, liveOdds, oddsType)}
           {renderPeriodScores("homeTeam", quartersToShow())}
           {game.status == "0" ? "" : renderTotal("homeTeam", homeScoreClass)}
         </tr>
@@ -343,7 +367,7 @@ const GameScore: React.FC<GameScoreProps> = ({ game, oddsType }) => {
               </div>
             </div>
           </td>
-          {renderOdds("awayTeam", startOdds, kickOffOdds, oddsType)}
+          {renderOdds("awayTeam", startOdds, kickOffOdds, liveOdds, oddsType)}
           {renderPeriodScores("awayTeam", quartersToShow())}
           {game.status == "0" ? "" : renderTotal("awayTeam", awayScoreClass)}
         </tr>
