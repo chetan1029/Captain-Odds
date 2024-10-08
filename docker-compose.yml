@@ -5,6 +5,7 @@ services:
     container_name: next
     image: chetanb1029/publicbets-nextjs:latest
     build: .
+    platform: linux/amd64
     depends_on:
       - db
     environment:
