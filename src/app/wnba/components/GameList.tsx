@@ -16,6 +16,9 @@ const GameList: React.FC<GameListProps> = ({ games, oddsType }) => {
     console.error("Expected 'games' to be an array, but received:", games);
     return <div>No games available</div>; // or some other fallback UI
   }
+  if (games.length <= 0) {
+    return <div className="mt-4">No games available for this date</div>; // or some other fallback UI
+  }
   return (
     <ul role="list" className="grid divide-y divide-gray-100 overflow-x-auto">
       {games?.map((game: any) => (

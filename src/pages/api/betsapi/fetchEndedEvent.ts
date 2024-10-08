@@ -45,11 +45,25 @@ async function fetchEndedEvent(formattedDate: string) {
 }
 
 // Handler for API request
+// call as /betsapi/fetchEndedEvent?startDate=2024-10-01&endDate=2024-10-05
 export default async function handler(req: any, res: any) {
   try {
-    const endDate = new Date();
-    const startDate = new Date(endDate);
-    startDate.setDate(endDate.getDate() - 5);
+    // Extract start and end dates from the query parameters
+    const { startDate: startDateParam, endDate: endDateParam } = req.query;
+
+    // Parse the start and end dates from the request
+    const endDate = new Date(endDateParam);
+    const startDate = new Date(startDateParam);
+
+    // Check if dates are valid
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      return res.status(400).json({ error: 'Invalid date format' });
+    }
+
+    // Ensure startDate is before endDate
+    if (startDate > endDate) {
+      return res.status(400).json({ error: 'Start date must be before end date' });
+    }
 
     let currentDate = startDate;
 

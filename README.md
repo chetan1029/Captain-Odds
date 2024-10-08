@@ -49,6 +49,10 @@ docker run -p 5432:5432 --name postgres -e POSTGRES_PASSWORD=BETpUBlic2024 -e PO
 
 ssh root@138.197.8.70
 
+## Create and push nextjs image to docker hub
+
+docker buildx build --platform linux/amd64 -t chetanb1029/publicbets-nextjs:latest --push .
+
 ## Prepare production server
 
 1. apt install docker-compose
