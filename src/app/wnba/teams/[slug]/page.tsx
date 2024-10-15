@@ -55,12 +55,31 @@ export default function TeamBySlug({ params }: { params: { slug: string } }) {
                     {team.name}
                   </p>
                 </div>
-                <div>
-                  <p className="truncate text-sm leading-5 text-gray-500">
-                    {team.city}
-                  </p>
-                </div>
               </div>
+            </div>
+            <div className="basis-1/5 flex-col min-w-0 py-3 px-4 border rounded mt-2 md:mt-0">
+              <dt className="text-gray-600 text-sm">Win / Loss</dt>
+              <dd className="order-first text-lg font-semibold tracking-tight text-gray-900">
+                {team.stats
+                  ? `${team.stats.wins || 0}-${team.stats.losses || 0}`
+                  : "-"}
+              </dd>
+            </div>
+            <div className="basis-1/5 flex-col min-w-0 py-3 px-4 border rounded mt-2 md:mt-0">
+              <dt className="text-gray-600 text-sm">Spread Win / Loss</dt>
+              <dd className="order-first text-lg font-semibold tracking-tight text-gray-900">
+                {team.stats
+                  ? `${team.stats.spreadWins || 0}-${team.stats.spreadLosses || 0}`
+                  : "-"}
+              </dd>
+            </div>
+            <div className="basis-1/5 flex-col min-w-0 py-3 px-4 border rounded mt-2 md:mt-0">
+              <dt className="text-gray-600 text-sm">Over / Under</dt>
+              <dd className="order-first text-lg font-semibold tracking-tight text-gray-900">
+                {team.stats
+                  ? `${team.stats.totalOvers || 0}-${team.stats.totalUnders || 0}`
+                  : "-"}
+              </dd>
             </div>
           </div>
 

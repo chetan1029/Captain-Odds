@@ -23,6 +23,7 @@ async function fetchUpcomingEvent(formattedDate: string) {
 
       sleep(10)
       // Fetch and update oods data 
+      console.log('https://api.b365api.com/v2/event/odds/summary?token=39110-RHppqfIogUBlF1&event_id='+externalEventId)
       const odds_response = await fetch('https://api.b365api.com/v2/event/odds/summary?token=39110-RHppqfIogUBlF1&event_id='+externalEventId);
       const odds_data = await odds_response.json();
       const odds_events = odds_data.results?.Bet365?.odds;

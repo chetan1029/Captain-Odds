@@ -7,21 +7,28 @@ import Link from "next/link";
 
 interface GameListProps {
   games: any[];
+  oddsType: "MoneyLine" | "Spread" | "Total";
 }
 
-const GameList: React.FC<GameListProps> = ({ games }) => {
+const GameList: React.FC<GameListProps> = ({ games, oddsType }) => {
+  // Check if games is an array
+  if (!Array.isArray(games)) {
+    console.error("Expected 'games' to be an array, but received:", games);
+    return <div>No games available</div>; // or some other fallback UI
+  }
+  if (games.length <= 0) {
+    return <div className="mt-4">No games available for this date</div>; // or some other fallback UI
+  }
   return (
-    <ul role="list" className="grid divide-y divide-gray-100">
-      {games.map((game: any) => (
+    <ul role="list" className="grid divide-y divide-gray-100 overflow-x-auto">
+      {games?.map((game: any) => (
         <li
           key={game.id}
-          className="md:flex md:divide-x md:divide-gray-300 py-3 "
+          className="min-w-[640px] md:flex md:divide-x md:divide-gray-300 py-3 "
         >
-          <div className="basis-2/5">
-            <Link key={game.id} href={`/wnba/boxscore/${game.id}`}>
-              <GameScore game={game} type="gameList" />
-            </Link>
-          </div>
+          <Link key={game.id} href={`/wnba/boxscore/${game.id}`}>
+            <GameScore game={game} oddsType={oddsType} />
+          </Link>
         </li>
       ))}
     </ul>

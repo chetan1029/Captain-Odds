@@ -14,6 +14,7 @@ async function insertEventOdds(eventId: string, oddsData: any) {
         // Check if we have start and kickoff odds
         const startExists = start && Object.keys(start).length > 0;
         const kickoffExists = kickoff && Object.keys(kickoff).length > 0;
+        const liveExists = end && Object.keys(end).length > 0;
         
         // Parsing start odds (check if specific odds exist before accessing)
         const startSpreads = startExists && start["18_2"] ? start["18_2"] : null;
@@ -24,9 +25,32 @@ async function insertEventOdds(eventId: string, oddsData: any) {
         const kickoffSpreads = kickoffExists && kickoff["18_2"] ? kickoff["18_2"] : null;
         const kickoffTotals = kickoffExists && kickoff["18_3"] ? kickoff["18_3"] : null;
         const kickoffMoneylines = kickoffExists && kickoff["18_1"] ? kickoff["18_1"] : null;
+
+        // Parsing end (live) odds
+        const liveSpreads = liveExists && end["18_2"] ? end["18_2"] : null;
+        const liveTotals = liveExists && end["18_3"] ? end["18_3"] : null;
+        const liveMoneylines = liveExists && end["18_1"] ? end["18_1"] : null;
+
+        // Fetch existing game to see if odds are already present
+        const existingGame = await prisma.wnbaGame.findUnique({
+            where: { externalId: eventId },
+            include: {
+            startSpreads: true,
+            startTotals: true,
+            startMoneylines: true,
+            kickoffSpreads: true,
+            kickoffTotals: true,
+            kickoffMoneylines: true,
+            },
+        });
+    
+        if (!existingGame) {
+            console.warn('Game with eventId not found.');
+            return;
+        }
     
         // Insert start odds data into respective tables
-        const startSpreadsEntry = startSpreads ? await prisma.wnbaSpreads.create({
+        const startSpreadsEntry = startSpreads && !existingGame.startSpreads ? await prisma.wnbaSpreads.create({
             data: {
             home_od: parseFloat(startSpreads.home_od),
             away_od: parseFloat(startSpreads.away_od),
@@ -35,7 +59,7 @@ async function insertEventOdds(eventId: string, oddsData: any) {
             }
         }) : null;
     
-        const kickoffSpreadsEntry = kickoffSpreads ? await prisma.wnbaSpreads.create({
+        const kickoffSpreadsEntry = kickoffSpreads && !existingGame.kickoffSpreads ? await prisma.wnbaSpreads.create({
             data: {
             home_od: parseFloat(kickoffSpreads.home_od),
             away_od: parseFloat(kickoffSpreads.away_od),
@@ -43,8 +67,17 @@ async function insertEventOdds(eventId: string, oddsData: any) {
             type: 'KICKOFF',
             }
         }) : null;
+
+        const liveSpreadsEntry = liveSpreads ? await prisma.wnbaSpreads.create({
+            data: {
+            home_od: parseFloat(liveSpreads.home_od),
+            away_od: parseFloat(liveSpreads.away_od),
+            handicap: parseFloat(liveSpreads.handicap),
+            type: 'LIVE',
+            }
+        }) : null;
     
-        const startTotalsEntry = startTotals ? await prisma.wnbaTotals.create({
+        const startTotalsEntry = startTotals && !existingGame.startTotals ? await prisma.wnbaTotals.create({
             data: {
             over_od: parseFloat(startTotals.over_od),
             under_od: parseFloat(startTotals.under_od),
@@ -53,7 +86,7 @@ async function insertEventOdds(eventId: string, oddsData: any) {
             }
         }) : null;
     
-        const kickoffTotalsEntry = kickoffTotals ? await prisma.wnbaTotals.create({
+        const kickoffTotalsEntry = kickoffTotals && !existingGame.kickoffTotals ? await prisma.wnbaTotals.create({
             data: {
             over_od: parseFloat(kickoffTotals.over_od),
             under_od: parseFloat(kickoffTotals.under_od),
@@ -61,8 +94,17 @@ async function insertEventOdds(eventId: string, oddsData: any) {
             type: 'KICKOFF',
             }
         }) : null;
+
+        const liveTotalsEntry = liveTotals ? await prisma.wnbaTotals.create({
+            data: {
+            over_od: parseFloat(liveTotals.over_od),
+            under_od: parseFloat(liveTotals.under_od),
+            handicap: parseFloat(liveTotals.handicap),
+            type: 'LIVE',
+            }
+        }) : null;
     
-        const startMoneylinesEntry = startMoneylines ? await prisma.wnbaMoneylines.create({
+        const startMoneylinesEntry = startMoneylines && !existingGame.startMoneylines ? await prisma.wnbaMoneylines.create({
             data: {
             home_od: parseFloat(startMoneylines.home_od),
             away_od: parseFloat(startMoneylines.away_od),
@@ -70,11 +112,19 @@ async function insertEventOdds(eventId: string, oddsData: any) {
             }
         }) : null;
     
-        const kickoffMoneylinesEntry = kickoffMoneylines ? await prisma.wnbaMoneylines.create({
+        const kickoffMoneylinesEntry = kickoffMoneylines && !existingGame.kickoffMoneylines ? await prisma.wnbaMoneylines.create({
             data: {
             home_od: parseFloat(kickoffMoneylines.home_od),
             away_od: parseFloat(kickoffMoneylines.away_od),
             type: 'KICKOFF',
+            }
+        }) : null;
+
+        const liveMoneylinesEntry = liveMoneylines ? await prisma.wnbaMoneylines.create({
+            data: {
+            home_od: parseFloat(liveMoneylines.home_od),
+            away_od: parseFloat(liveMoneylines.away_od),
+            type: 'LIVE',
             }
         }) : null;
   
@@ -88,6 +138,10 @@ async function insertEventOdds(eventId: string, oddsData: any) {
         if (kickoffSpreadsEntry) updateData.kickoffSpreadsId = kickoffSpreadsEntry.id;
         if (kickoffTotalsEntry) updateData.kickoffTotalsId = kickoffTotalsEntry.id;
         if (kickoffMoneylinesEntry) updateData.kickoffMoneylinesId = kickoffMoneylinesEntry.id;
+
+        if (liveSpreadsEntry) updateData.liveSpreadsId = liveSpreadsEntry.id;
+        if (liveTotalsEntry) updateData.liveTotalsId = liveTotalsEntry.id;
+        if (liveMoneylinesEntry) updateData.liveMoneylinesId = liveMoneylinesEntry.id;
 
         updateData.updatedAt = new Date();
 

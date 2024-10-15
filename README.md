@@ -45,6 +45,14 @@ npx prisma generate
 
 docker run -p 5432:5432 --name postgres -e POSTGRES_PASSWORD=BETpUBlic2024 -e POSTGRES_USER=publicbets -e POSTGRES_DB=publicbets -d postgres
 
+#
+
+ssh root@138.197.8.70
+
+## Create and push nextjs image to docker hub
+
+docker buildx build --platform linux/amd64 -t chetanb1029/publicbets-nextjs:latest --push .
+
 ## Prepare production server
 
 1. apt install docker-compose
@@ -57,4 +65,10 @@ docker run -p 5432:5432 --name postgres -e POSTGRES_PASSWORD=BETpUBlic2024 -e PO
 8. go to cd /root/publicbets/
 9. git clone git@github.com:chetan1029/publicbets-final.git
 10. Run - docker compose build
-11. Run - docker compose up
+11. Run - docker compose up -d
+12. Sometime postgres gonna give error of "role not found" or credentials error - just delete volume and build/up again
+
+## IMP commmands
+
+docker builder prune - to delete build cache
+docker system df - to check the system memory usage

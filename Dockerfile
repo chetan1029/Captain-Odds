@@ -3,7 +3,7 @@ FROM node:18-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat tzdata
 
 WORKDIR /app
 
@@ -12,11 +12,11 @@ COPY prisma ./prisma/
 RUN npm ci
 
 ## Dev for Hot reloading
-FROM base AS dev
+# FROM base AS dev
 
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+# WORKDIR /app
+# COPY --from=deps /app/node_modules ./node_modules
+# COPY . .
 
 ## Rebuild the source code only when needed
 FROM base AS builder
@@ -36,6 +36,11 @@ WORKDIR /app
 
 ENV NODE_ENV production
 
+# Install tzdata for timezone support
+RUN apk add --no-cache tzdata
+
+# Set the timezone to America/Toronto
+ENV TZ="America/Toronto"
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs

@@ -22,11 +22,11 @@ export default function DateNav({ todayDate }: DateNavProps) {
     };
   };
 
-  // Function to generate 3 days before and 3 days after the selected date
+  // Function to generate 2 days before and 2 days after the selected date
   const generateDates = (selectedDate: any) => {
     const dates = [];
-    // Generate dates for 3 days before and 3 days after
-    for (let i = -3; i <= 3; i++) {
+    // Generate dates for 2 days before and 2 days after
+    for (let i = -2; i <= 2; i++) {
       const date = addDays(selectedDate, i);
       dates.push(formatDate(date, i === 0)); // Mark the current date as `isToday`
     }
@@ -36,15 +36,15 @@ export default function DateNav({ todayDate }: DateNavProps) {
   // State to keep track of the start date
   const [startDate, setStartDate] = useState(parsedTodayDate);
 
-  // Event handler for navigating to the previous 7 days
+  // Event handler for navigating to the previous 5 days
   const handlePrevClick = () => {
-    const newStartDate = addDays(startDate, -7);
+    const newStartDate = addDays(startDate, -5);
     setStartDate(newStartDate);
   };
 
-  // Event handler for navigating to the next 7 days
+  // Event handler for navigating to the next 5 days
   const handleNextClick = () => {
-    const newStartDate = addDays(startDate, 7);
+    const newStartDate = addDays(startDate, 5);
     setStartDate(newStartDate);
   };
 

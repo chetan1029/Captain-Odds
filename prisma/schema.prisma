@@ -25,16 +25,22 @@ model WnbaGame {
   awayTeam            WnbaTeam        @relation("AwayTeamRelation", fields: [awayTeamId], references: [id])
   startSpreads        WnbaSpreads?    @relation("StartSpreads", fields: [startSpreadsId], references: [id])
   kickoffSpreads      WnbaSpreads?    @relation("KickoffSpreads", fields: [kickoffSpreadsId], references: [id])
+  liveSpreads         WnbaSpreads?    @relation("LiveSpreads", fields: [liveSpreadsId], references: [id])
   startTotals         WnbaTotals?     @relation("StartTotals", fields: [startTotalsId], references: [id])
   kickoffTotals       WnbaTotals?     @relation("KickoffTotals", fields: [kickoffTotalsId], references: [id])
+  liveTotals          WnbaTotals?     @relation("LiveTotals", fields: [liveTotalsId], references: [id])
   startMoneylines     WnbaMoneylines? @relation("StartMoneylines", fields: [startMoneylinesId], references: [id])
   kickoffMoneylines   WnbaMoneylines? @relation("KickoffMoneylines", fields: [kickoffMoneylinesId], references: [id])
+  liveMoneylines      WnbaMoneylines? @relation("LiveMoneylines", fields: [liveMoneylinesId], references: [id])
   startSpreadsId      Int?            @unique
   kickoffSpreadsId    Int?            @unique
+  liveSpreadsId       Int?            @unique
   startTotalsId       Int?            @unique
   kickoffTotalsId     Int?            @unique
+  liveTotalsId        Int?            @unique
   startMoneylinesId   Int?            @unique
   kickoffMoneylinesId Int?            @unique
+  liveMoneylinesId    Int?            @unique
   homeScore           Int?
   awayScore           Int?
   scores              WnbaScore[]     @relation("GameScores")
@@ -86,6 +92,7 @@ model WnbaSpreads {
   type        OddsType // Enum for start or kickoff
   gameStart   WnbaGame? @relation("StartSpreads")
   gameKickoff WnbaGame? @relation("KickoffSpreads")
+  gameLive    WnbaGame? @relation("LiveSpreads")
   createdAt   DateTime  @default(now())
 }
 
@@ -97,6 +104,7 @@ model WnbaTotals {
   type        OddsType // Enum for start or kickoff
   gameStart   WnbaGame? @relation("StartTotals")
   gameKickoff WnbaGame? @relation("KickoffTotals")
+  gameLive    WnbaGame? @relation("LiveTotals")
   createdAt   DateTime  @default(now())
 }
 
@@ -107,10 +115,12 @@ model WnbaMoneylines {
   type        OddsType // Enum for start or kickoff
   gameStart   WnbaGame? @relation("StartMoneylines")
   gameKickoff WnbaGame? @relation("KickoffMoneylines")
+  gameLive    WnbaGame? @relation("LiveMoneylines")
   createdAt   DateTime  @default(now())
 }
 
 enum OddsType {
   START
   KICKOFF
+  LIVE
 }

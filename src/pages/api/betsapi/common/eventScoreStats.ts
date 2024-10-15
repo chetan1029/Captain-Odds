@@ -46,30 +46,68 @@ async function insertGameScoresAndStats(eventId: string, gameData: GameData) {
             data: { bet365Id: bet365_id, homeScore: homeScore, awayScore: awayScore}
         });
 
-        // Insert quarter-by-quarter scores
+        // Insert or update quarter-by-quarter scores
         for (const [quarter, score] of Object.entries(scores)) {
-            // Now 'score' is strongly typed as Score
-            await prisma.wnbaScore.create({
-                data: {
+            const existingScore = await prisma.wnbaScore.findFirst({
+                where: {
                     gameId: game.id,
-                    quarter: parseInt(quarter),
-                    homeScore: parseInt(score.home),
-                    awayScore: parseInt(score.away),
+                    quarter: parseInt(quarter)
                 }
             });
+
+            if (existingScore) {
+                // Update the existing score if it already exists
+                await prisma.wnbaScore.update({
+                    where: { id: existingScore.id },
+                    data: {
+                        homeScore: parseInt(score.home),
+                        awayScore: parseInt(score.away)
+                    }
+                });
+            } else {
+                // Create a new score if it doesn't exist
+                await prisma.wnbaScore.create({
+                    data: {
+                        gameId: game.id,
+                        quarter: parseInt(quarter),
+                        homeScore: parseInt(score.home),
+                        awayScore: parseInt(score.away),
+                    }
+                });
+            }
         }
 
-        // Insert stats into the database
+        // Insert or update stats
         for (const [statType, values] of Object.entries(stats)) {
             const [homeValue, awayValue] = values.map(Number);
-            await prisma.wnbaStats.create({
-                data: {
+
+            const existingStat = await prisma.wnbaStats.findFirst({
+                where: {
                     gameId: game.id,
-                    statType,
-                    homeValue,
-                    awayValue
+                    statType
                 }
             });
+
+            if (existingStat) {
+                // Update the existing stat if it already exists
+                await prisma.wnbaStats.update({
+                    where: { id: existingStat.id },
+                    data: {
+                        homeValue,
+                        awayValue
+                    }
+                });
+            } else {
+                // Create a new stat if it doesn't exist
+                await prisma.wnbaStats.create({
+                    data: {
+                        gameId: game.id,
+                        statType,
+                        homeValue,
+                        awayValue
+                    }
+                });
+            }
         }
 
         console.log('Game scores and stats inserted successfully.');

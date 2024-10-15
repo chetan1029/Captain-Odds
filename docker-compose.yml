@@ -1,10 +1,8 @@
-version: "3.9"
-
 services:
   next:
     container_name: next
-    image: cedo/next
-    build: .
+    image: chetanb1029/publicbets-nextjs:latest
+    platform: linux/amd64
     depends_on:
       - db
     environment:
@@ -12,6 +10,7 @@ services:
       # if you are using reverse proxy you dont need to expose the port
     ports:
       - "3000:3000"
+
   db:
     image: postgres:15
     container_name: database
@@ -30,5 +29,19 @@ services:
       # you dont need to expose the port, use it if you want to connect to databse from your local machine while developing
     ports:
       - "5432:5432"
+
+  cron:
+    container_name: cronjob
+    image: alpine:3.14
+    restart: always
+    volumes:
+      - ./cronjob:/etc/crontabs/root # Copy your cronjob file into the container
+    depends_on:
+      - next
+    entrypoint: >
+      sh -c "
+      apk add --no-cache curl && 
+      crond -f -l 2"
+
 volumes:
   postgres_data:
