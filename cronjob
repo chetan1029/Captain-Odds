@@ -5,4 +5,4 @@
 */30 * * * * curl http://next:3000/api/betsapi/fetchUpcomingEvent > /var/log/cron.log 2>&1
 
 # Run Upcoming Events every minute
-* * * * * curl http://next:3000/api/betsapi/fetchInplayEvent > /var/log/cron.log 2>&1
+* * * * * curl http://next:3000/api/betsapi/fetchInPlayEvent > /var/log/cron.log 2>&1

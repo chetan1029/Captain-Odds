@@ -27,4 +27,11 @@ const formatStatType = (statType: string): string => {
     .replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
-export { getShortName, renderStatus, formatStatType };
+const formatSecondsToMinutes = (seconds: number) => {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  // Pad seconds with a leading zero if less than 10
+  return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
+};
+
+export { getShortName, renderStatus, formatStatType, formatSecondsToMinutes };

@@ -1,18 +1,18 @@
 "use client";
-import GameList from "./GameList";
 import useSWR from "swr";
 import { fetcher } from "@/app/utils/swrFetcher";
 import { formatDateOnly } from "@/app/utils/formatDate";
 import { ChangeEvent, useState } from "react";
+import GameOddsList from "./GameOddsList";
 
-interface MatchupblockProps {
+interface OddsblockProps {
   todayDate: string;
 }
 
 // Define the specific type for odds
 type OddsType = "MoneyLine" | "Spread" | "Total";
 
-export default function Matchupblock({ todayDate }: MatchupblockProps) {
+export default function Oddsblock({ todayDate }: OddsblockProps) {
   const [oddsType, setOddsType] = useState<OddsType>("MoneyLine");
 
   const handleOddsType = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -21,13 +21,9 @@ export default function Matchupblock({ todayDate }: MatchupblockProps) {
   };
 
   // Use SWR to fetch data, with auto-revalidation
-  const { data: games, error } = useSWR(
-    "/api/games?date=" + todayDate,
-    fetcher,
-    {
-      refreshInterval: 60000, // Auto-revalidate every 60 seconds
-    }
-  );
+  const { data: games, error } = useSWR("/api/odds", fetcher, {
+    refreshInterval: 60000, // Auto-revalidate every 60 seconds
+  });
 
   // If data is still loading
   if (!games) {
@@ -42,9 +38,7 @@ export default function Matchupblock({ todayDate }: MatchupblockProps) {
   return (
     <div className="mx-auto max-w-7xl py-6 px-4 md:px-6 lg:px-6 bg-white rounded-lg border border-gray-100 text-gray-900">
       <div className="flex flex-col md:flex-row items-start items-center justify-between pb-3 border-b">
-        <h2 className="font-semibold mb-2 md:mb-0">
-          {formatDateOnly(todayDate)}
-        </h2>
+        <h2 className="font-semibold mb-2 md:mb-0">Live Odds</h2>
 
         <div className="w-full max-w-[300px] min-w-[200px]">
           <div className="relative">
@@ -75,7 +69,7 @@ export default function Matchupblock({ todayDate }: MatchupblockProps) {
         </div>
       </div>
 
-      <GameList games={games} oddsType={oddsType} />
+      <GameOddsList games={games} oddsType={oddsType} />
     </div>
   );
 }

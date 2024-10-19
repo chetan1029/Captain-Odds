@@ -26,21 +26,27 @@ model WnbaGame {
   startSpreads        WnbaSpreads?    @relation("StartSpreads", fields: [startSpreadsId], references: [id])
   kickoffSpreads      WnbaSpreads?    @relation("KickoffSpreads", fields: [kickoffSpreadsId], references: [id])
   liveSpreads         WnbaSpreads?    @relation("LiveSpreads", fields: [liveSpreadsId], references: [id])
+  liveOldSpreads      WnbaSpreads?    @relation("LiveOldSpreads", fields: [liveOldSpreadsId], references: [id])
   startTotals         WnbaTotals?     @relation("StartTotals", fields: [startTotalsId], references: [id])
   kickoffTotals       WnbaTotals?     @relation("KickoffTotals", fields: [kickoffTotalsId], references: [id])
   liveTotals          WnbaTotals?     @relation("LiveTotals", fields: [liveTotalsId], references: [id])
+  liveOldTotals       WnbaTotals?     @relation("LiveOldTotals", fields: [liveOldTotalsId], references: [id])
   startMoneylines     WnbaMoneylines? @relation("StartMoneylines", fields: [startMoneylinesId], references: [id])
   kickoffMoneylines   WnbaMoneylines? @relation("KickoffMoneylines", fields: [kickoffMoneylinesId], references: [id])
   liveMoneylines      WnbaMoneylines? @relation("LiveMoneylines", fields: [liveMoneylinesId], references: [id])
+  liveOldMoneylines   WnbaMoneylines? @relation("LiveOldMoneylines", fields: [liveOldMoneylinesId], references: [id])
   startSpreadsId      Int?            @unique
   kickoffSpreadsId    Int?            @unique
   liveSpreadsId       Int?            @unique
+  liveOldSpreadsId    Int?            @unique
   startTotalsId       Int?            @unique
   kickoffTotalsId     Int?            @unique
   liveTotalsId        Int?            @unique
+  liveOldTotalsId     Int?            @unique
   startMoneylinesId   Int?            @unique
   kickoffMoneylinesId Int?            @unique
   liveMoneylinesId    Int?            @unique
+  liveOldMoneylinesId Int?            @unique
   homeScore           Int?
   awayScore           Int?
   scores              WnbaScore[]     @relation("GameScores")
@@ -93,6 +99,7 @@ model WnbaSpreads {
   gameStart   WnbaGame? @relation("StartSpreads")
   gameKickoff WnbaGame? @relation("KickoffSpreads")
   gameLive    WnbaGame? @relation("LiveSpreads")
+  gameLiveOld WnbaGame? @relation("LiveOldSpreads")
   createdAt   DateTime  @default(now())
 }
 
@@ -105,6 +112,7 @@ model WnbaTotals {
   gameStart   WnbaGame? @relation("StartTotals")
   gameKickoff WnbaGame? @relation("KickoffTotals")
   gameLive    WnbaGame? @relation("LiveTotals")
+  gameLiveOld WnbaGame? @relation("LiveOldTotals")
   createdAt   DateTime  @default(now())
 }
 
@@ -116,6 +124,7 @@ model WnbaMoneylines {
   gameStart   WnbaGame? @relation("StartMoneylines")
   gameKickoff WnbaGame? @relation("KickoffMoneylines")
   gameLive    WnbaGame? @relation("LiveMoneylines")
+  gameLiveOld WnbaGame? @relation("LiveOldMoneylines")
   createdAt   DateTime  @default(now())
 }
 
@@ -123,4 +132,5 @@ enum OddsType {
   START
   KICKOFF
   LIVE
+  LIVEOLD
 }

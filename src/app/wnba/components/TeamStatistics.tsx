@@ -1,4 +1,4 @@
-import { formatStatType } from "@/app/utils/common";
+import { formatSecondsToMinutes, formatStatType } from "@/app/utils/common";
 import { stringToSlug } from "@/app/utils/toSlug";
 import Link from "next/link";
 
@@ -16,13 +16,26 @@ const TeamStatistics: React.FC<TeamStatisticsProps> = ({ game }) => {
 
   // Function to render stats rows
   const renderStatsRows = () => {
-    return stats.map((stat: any) => (
-      <tr key={stat.id}>
-        <td className="px-3 py-2 text-left">{formatStatType(stat.statType)}</td>
-        <td className="px-3 py-2 text-center">{stat.homeValue}</td>
-        <td className="px-3 py-2 text-center">{stat.awayValue}</td>
-      </tr>
-    ));
+    return stats.map((stat: any) => {
+      const statType = formatStatType(stat.statType);
+      let homeValue = stat.homeValue;
+      let awayValue = stat.awayValue;
+      if (statType === "Timespent Inlead") {
+        homeValue = formatSecondsToMinutes(homeValue);
+        awayValue = formatSecondsToMinutes(awayValue);
+      }
+      if (statType === "Free Throws Rate" || statType === "Possession") {
+        homeValue = homeValue + "%";
+        awayValue = awayValue + "%";
+      }
+      return (
+        <tr key={stat.id}>
+          <td className="px-3 py-2 text-left">{formatStatType(statType)}</td>
+          <td className="px-3 py-2 text-center">{homeValue}</td>
+          <td className="px-3 py-2 text-center">{awayValue}</td>
+        </tr>
+      );
+    });
   };
 
   return (
