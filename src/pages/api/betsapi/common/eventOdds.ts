@@ -4,7 +4,7 @@ async function insertEventOdds(eventId: string, oddsData: any) {
     try {
         // Ensure oddsData is valid and exists
         if (!oddsData || typeof oddsData !== 'object') {
-            console.warn('Invalid or undefined oddsData object, skipping odds processing.');
+            console.warn('Invalid or undefined oddsData object, skipping odds processing. It might be empty');
             return; // Exit early if oddsData is not valid
         }
 
@@ -41,6 +41,12 @@ async function insertEventOdds(eventId: string, oddsData: any) {
             kickoffSpreads: true,
             kickoffTotals: true,
             kickoffMoneylines: true,
+            liveSpreads: true,
+            liveTotals: true,
+            liveMoneylines: true,
+            liveOldSpreads: true,
+            liveOldTotals: true,
+            liveOldMoneylines: true,
             },
         });
     
@@ -68,14 +74,35 @@ async function insertEventOdds(eventId: string, oddsData: any) {
             }
         }) : null;
 
-        const liveSpreadsEntry = liveSpreads ? await prisma.wnbaSpreads.create({
-            data: {
-            home_od: parseFloat(liveSpreads.home_od),
-            away_od: parseFloat(liveSpreads.away_od),
-            handicap: parseFloat(liveSpreads.handicap),
-            type: 'LIVE',
-            }
+        const liveOldSpreadsEntry = liveSpreads && existingGame.liveSpreads ? await prisma.wnbaSpreads.upsert({
+          where: { id: existingGame.liveOldSpreads?.id || 0 }, // Use existing ID if available
+          update: {
+            home_od: existingGame.liveSpreads?.home_od,
+            away_od: existingGame.liveSpreads?.away_od,
+            handicap: existingGame.liveSpreads?.handicap,
+          },
+          create: {
+            home_od: existingGame.liveSpreads?.home_od,
+            away_od: existingGame.liveSpreads?.away_od,
+            handicap: existingGame.liveSpreads?.handicap,
+            type: 'LIVEOLD',
+          },
         }) : null;
+
+        const liveSpreadsEntry = liveSpreads ? await prisma.wnbaSpreads.upsert({
+            where: { id: existingGame.liveSpreads?.id || 0 }, // Use existing ID if available
+            update: {
+              home_od: parseFloat(liveSpreads.home_od),
+              away_od: parseFloat(liveSpreads.away_od),
+              handicap: parseFloat(liveSpreads.handicap),
+            },
+            create: {
+              home_od: parseFloat(liveSpreads.home_od),
+              away_od: parseFloat(liveSpreads.away_od),
+              handicap: parseFloat(liveSpreads.handicap),
+              type: 'LIVE',
+            },
+          }) : null;
     
         const startTotalsEntry = startTotals && !existingGame.startTotals ? await prisma.wnbaTotals.create({
             data: {
@@ -95,14 +122,35 @@ async function insertEventOdds(eventId: string, oddsData: any) {
             }
         }) : null;
 
-        const liveTotalsEntry = liveTotals ? await prisma.wnbaTotals.create({
-            data: {
-            over_od: parseFloat(liveTotals.over_od),
-            under_od: parseFloat(liveTotals.under_od),
-            handicap: parseFloat(liveTotals.handicap),
-            type: 'LIVE',
-            }
+        const liveOldTotalsEntry = liveTotals && existingGame.liveTotals ? await prisma.wnbaTotals.upsert({
+          where: { id: existingGame.liveOldTotals?.id || 0 }, // Use existing ID if available
+          update: {
+            over_od: existingGame.liveTotals?.over_od,
+            under_od: existingGame.liveTotals?.under_od,
+            handicap: existingGame.liveTotals?.handicap,
+          },
+          create: {
+            over_od: existingGame.liveTotals?.over_od,
+            under_od: existingGame.liveTotals?.under_od,
+            handicap: existingGame.liveTotals?.handicap,
+            type: 'LIVEOLD',
+          },
         }) : null;
+
+        const liveTotalsEntry = liveTotals ? await prisma.wnbaTotals.upsert({
+            where: { id: existingGame.liveTotals?.id || 0 }, // Use existing ID if available
+            update: {
+              over_od: parseFloat(liveTotals.over_od),
+              under_od: parseFloat(liveTotals.under_od),
+              handicap: parseFloat(liveTotals.handicap),
+            },
+            create: {
+              over_od: parseFloat(liveTotals.over_od),
+              under_od: parseFloat(liveTotals.under_od),
+              handicap: parseFloat(liveTotals.handicap),
+              type: 'LIVE',
+            },
+          }) : null;
     
         const startMoneylinesEntry = startMoneylines && !existingGame.startMoneylines ? await prisma.wnbaMoneylines.create({
             data: {
@@ -120,13 +168,31 @@ async function insertEventOdds(eventId: string, oddsData: any) {
             }
         }) : null;
 
-        const liveMoneylinesEntry = liveMoneylines ? await prisma.wnbaMoneylines.create({
-            data: {
-            home_od: parseFloat(liveMoneylines.home_od),
-            away_od: parseFloat(liveMoneylines.away_od),
-            type: 'LIVE',
-            }
+        const liveOldMoneylinesEntry = liveMoneylines && existingGame.liveMoneylines ? await prisma.wnbaMoneylines.upsert({
+          where: { id: existingGame.liveOldMoneylines?.id || 0 }, // Use existing ID if available
+          update: {
+            home_od: existingGame?.liveMoneylines?.home_od,
+            away_od: existingGame?.liveMoneylines?.away_od,
+          },
+          create: {
+            home_od: existingGame?.liveMoneylines?.home_od,
+            away_od: existingGame?.liveMoneylines?.away_od,
+            type: 'LIVEOLD',
+          },
         }) : null;
+
+        const liveMoneylinesEntry = liveMoneylines ? await prisma.wnbaMoneylines.upsert({
+            where: { id: existingGame.liveMoneylines?.id || 0 }, // Use existing ID if available
+            update: {
+              home_od: parseFloat(liveMoneylines.home_od),
+              away_od: parseFloat(liveMoneylines.away_od),
+            },
+            create: {
+              home_od: parseFloat(liveMoneylines.home_od),
+              away_od: parseFloat(liveMoneylines.away_od),
+              type: 'LIVE',
+            },
+          }) : null;
   
         // Build the update data object dynamically based on existing odds
         const updateData: any = {};
@@ -142,6 +208,10 @@ async function insertEventOdds(eventId: string, oddsData: any) {
         if (liveSpreadsEntry) updateData.liveSpreadsId = liveSpreadsEntry.id;
         if (liveTotalsEntry) updateData.liveTotalsId = liveTotalsEntry.id;
         if (liveMoneylinesEntry) updateData.liveMoneylinesId = liveMoneylinesEntry.id;
+
+        if (liveOldSpreadsEntry) updateData.liveOldSpreadsId = liveOldSpreadsEntry.id;
+        if (liveOldTotalsEntry) updateData.liveOldTotalsId = liveOldTotalsEntry.id;
+        if (liveOldMoneylinesEntry) updateData.liveOldMoneylinesId = liveOldMoneylinesEntry.id;
 
         updateData.updatedAt = new Date();
 

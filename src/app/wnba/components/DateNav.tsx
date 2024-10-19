@@ -5,9 +5,10 @@ import Link from "next/link";
 
 interface DateNavProps {
   todayDate: string;
+  type: string;
 }
 
-export default function DateNav({ todayDate }: DateNavProps) {
+export default function DateNav({ todayDate, type }: DateNavProps) {
   // Parse todayDate (e.g., "2024-09-14") into a Date object
   const parsedTodayDate = toDate(parseISO(todayDate));
 
@@ -54,7 +55,7 @@ export default function DateNav({ todayDate }: DateNavProps) {
     return dates.map((item, index) => (
       <Link
         key={index}
-        href={`/wnba/matchup/${item.urlDate}`}
+        href={`/wnba/${type}/${item.urlDate}`}
         className="text-center"
         style={{ transitionDelay: `${index * 100}ms` }}
       >

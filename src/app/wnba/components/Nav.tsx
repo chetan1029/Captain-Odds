@@ -51,6 +51,16 @@ export default function SubNav() {
                 Scores & Matchups
               </Link>
               <Link
+                href="/wnba/odds"
+                className={`px-3 py-2 text-sm font-medium rounded-md ${
+                  pathname?.startsWith("/wnba/odds")
+                    ? "bg-gray-900 text-white"
+                    : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                }`}
+              >
+                Odds
+              </Link>
+              <Link
                 href="/wnba/teams"
                 className={`px-3 py-2 text-sm font-medium rounded-md ${
                   pathname?.startsWith("/wnba/teams")

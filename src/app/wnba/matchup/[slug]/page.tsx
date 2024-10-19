@@ -13,7 +13,7 @@ export default function Matchup({ params }: { params: { slug: string } }) {
     <main className="flex-grow">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-20 mt-4">
         <Breadcrumbs breadcrumbs={breadcrumbs} />
-        <DateNav todayDate={params.slug} />
+        <DateNav todayDate={params.slug} type={"matchup"} />
         <Matchupblock todayDate={params.slug} />
       </div>
     </main>

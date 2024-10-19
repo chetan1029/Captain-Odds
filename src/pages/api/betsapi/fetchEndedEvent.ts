@@ -51,9 +51,16 @@ export default async function handler(req: any, res: any) {
     // Extract start and end dates from the query parameters
     const { startDate: startDateParam, endDate: endDateParam } = req.query;
 
-    // Parse the start and end dates from the request
-    const endDate = new Date(endDateParam);
-    const startDate = new Date(startDateParam);
+    // Get today's date
+    const today = new Date();
+    
+    // Set the default endDate to yesterday
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    
+    // If startDate or endDate are not provided, default startDate to today and endDate to yesterday
+    const endDate = endDateParam ? new Date(endDateParam) : today; // If endDate is not provided, use yesterday
+    const startDate = startDateParam ? new Date(startDateParam) : yesterday; // If startDate is not provided, use today
 
     // Check if dates are valid
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {

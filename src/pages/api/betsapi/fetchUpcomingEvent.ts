@@ -23,7 +23,6 @@ async function fetchUpcomingEvent(formattedDate: string) {
 
       sleep(10)
       // Fetch and update oods data 
-      console.log('https://api.b365api.com/v2/event/odds/summary?token=39110-RHppqfIogUBlF1&event_id='+externalEventId)
       const odds_response = await fetch('https://api.b365api.com/v2/event/odds/summary?token=39110-RHppqfIogUBlF1&event_id='+externalEventId);
       const odds_data = await odds_response.json();
       const odds_events = odds_data.results?.Bet365?.odds;
@@ -37,11 +36,31 @@ async function fetchUpcomingEvent(formattedDate: string) {
 }
 
 // Handler for API request
+// call as /betsapi/fetchUpcomingEvent?startDate=2024-10-01&endDate=2024-10-05
 export default async function handler(req: any, res: any) {
   try {
-    const startDate = new Date();
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 2);
+    const { startDate: startDateParam, endDate: endDateParam } = req.query;
+
+    // Get today's date
+    const today = new Date();
+    
+    // Set the default endDate to yesterday
+    const twoMoreDate = new Date(today);
+    twoMoreDate.setDate(today.getDate() + 1);
+
+    const endDate = endDateParam ? new Date(endDateParam) : twoMoreDate;
+    const startDate = startDateParam ? new Date(startDateParam) : today;
+
+    // Check if dates are valid
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      return res.status(400).json({ error: 'Invalid date format' });
+    }
+
+    // Ensure startDate is before endDate
+    if (startDate > endDate) {
+      return res.status(400).json({ error: 'Start date must be before end date' });
+    }
+
     let currentDate = startDate;
 
     while (currentDate <= endDate) {
